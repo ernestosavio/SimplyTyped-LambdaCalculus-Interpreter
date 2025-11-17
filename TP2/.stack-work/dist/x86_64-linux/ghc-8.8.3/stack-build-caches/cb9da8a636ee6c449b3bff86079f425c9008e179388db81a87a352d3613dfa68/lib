@@ -1,0 +1,24 @@
+/home/ernesto/.ghcup/ghc/8.8.3/lib/ghc-8.8.3/include/ghcversion.h:
+  hash: 40d1b759f485f1cd5a54141a6412691ac2b76930507289a16a6a7b89b045b4d2
+/home/ernesto/Desktop/alp/tp2-repo/TP2/.stack-work/dist/x86_64-linux/ghc-8.8.3/build/autogen/Paths_TP2.hs:
+  hash: a09920042cad18d29ba451fa301976719796c3e1263103b40c267fbba58d5a43
+/home/ernesto/Desktop/alp/tp2-repo/TP2/.stack-work/dist/x86_64-linux/ghc-8.8.3/build/autogen/cabal_macros.h:
+  hash: ade3c56fc728833c9f11aa0cbf05fbcb4820c6d7b1ab80b2452495a40ec7427b
+/home/ernesto/Desktop/alp/tp2-repo/TP2/ChangeLog.md:
+  hash: b6db31e04d81c0e662bab2cbee2044b15c6a17422f0ed7b23ee85da5086cf956
+/home/ernesto/Desktop/alp/tp2-repo/TP2/README.md:
+  hash: 7a6d5cb38ef1bd8af98a911f831eb4352fabde8c1b3ac75ae436dba070996555
+/home/ernesto/Desktop/alp/tp2-repo/TP2/TP2.cabal:
+  hash: f04d8f29cbc8c63778d9cee6bc007623d0b8151d4c985c3db6104a0015e911a7
+/home/ernesto/Desktop/alp/tp2-repo/TP2/package.yaml:
+  hash: 3f5d9d8a2a57469ed5359f4daf48ab7a74a6eb0299ce2def67ad968547b7ac61
+/home/ernesto/Desktop/alp/tp2-repo/TP2/src/Common.hs:
+  hash: c18f467a1f4eb4701a3dc29bdbac50ad025d8d4ec7487cc872b67920340fde4e
+/home/ernesto/Desktop/alp/tp2-repo/TP2/src/Parse.y:
+  hash: fdc84850c1157735ac40989d1fda0cde1c20240de866c5120d955c2dae4857b8
+/home/ernesto/Desktop/alp/tp2-repo/TP2/src/PrettyPrinter.hs:
+  hash: 9491d18994f6082af5a86ab058c5e53608c73fe53f26de26d096f276c4f8e039
+/home/ernesto/Desktop/alp/tp2-repo/TP2/src/Simplytyped.hs:
+  hash: 4a57daa28a6fe2120ad91d9d890c5303a4687dfeb8b0f562f9800595a71280d3
+/usr/include/stdc-predef.h:
+  hash: 82975831ea2d1f95b60225f37ddd6130225f0c3de2318674cb178fea661ad87b
