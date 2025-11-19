@@ -66,10 +66,24 @@ quote (VLam t f) = Lam t f
 
 -- evalúa un término en un entorno dado
 eval :: NameEnv Value Type -> Term -> Value
-eval = undefined
+eval env t@(Bound j) = error "ERROR (eval) - Invalid term"
 
+eval env t@(Free str) = case (inEnv env str) of
+      (Just (value, _)) -> value
+      (Nothing) -> error "ERROR (eval) - Free variable without value in env"
 
+eval env (u :@: v) = let u' = quote (eval env u)
+                         v' = quote (eval env v)
+                     in eval env (sub 0 v' u')
 
+eval env (Lam t u) = (VLam t u)
+
+inEnv :: NameEnv Value Type -> Name -> Maybe (Value, Type)
+inEnv [] name = Nothing
+inEnv ((envName, (envValue, envType)) : xs) name = 
+                              if (envName == name)
+                                then (Just (envValue, envType))
+                                else inEnv xs name
 
 ----------------------
 --- type checker
