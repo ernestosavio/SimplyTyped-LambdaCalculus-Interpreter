@@ -33,6 +33,14 @@ conversion (LApp term1 term2) = let
                                 in
                                   term1' :@: term2'
 
+conversion (LLet str term1 term2) = let 
+                                      term1' = conversion term1
+                                      term2' = conversion term2
+                                    in
+                                      (Let term1' (bound2Brujin 
+                                      (Global str) 0 term2')) 
+
+
 
 bound2Brujin :: Name -> Int -> Term -> Term
 bound2Brujin _ _ t@(Bound j) = t
@@ -48,6 +56,9 @@ bound2Brujin idx i (term1 :@: term2) = let
 
 bound2Brujin idx i (Lam t term) = Lam t (bound2Brujin idx (i+1) term)
 
+bound2Brujin idx i (Let term1 term2) = Let term1 
+                                           (bound2Brujin idx (i+1) term2)
+
 ----------------------------
 --- evaluador de términos
 ----------------------------
@@ -59,6 +70,8 @@ sub _ _ (Bound j) | otherwise = Bound j
 sub _ _ (Free n   )           = Free n
 sub i t (u   :@: v)           = sub i t u :@: sub i t v
 sub i t (Lam t'  u)           = Lam t' (sub (i + 1) t u)
+sub i t (Let term1  term2)    = Let (sub (i + 1) t term1)
+                                    (sub (i + 1) t term2)
 
 -- convierte un valor en el término equivalente
 quote :: Value -> Term
@@ -77,6 +90,8 @@ eval env (u :@: v) = let u' = quote (eval env u)
                      in eval env (sub 0 v' u')
 
 eval env (Lam t u) = (VLam t u)
+eval env (Let term1 term2) = let term1' = quote (eval env term1)
+                             in eval env (sub 0 term1' term2)
 
 inEnv :: NameEnv Value Type -> Name -> Maybe (Value, Type)
 inEnv [] name = Nothing
@@ -131,5 +146,6 @@ infer' c e (t :@: u) = infer' c e t >>= \tt -> infer' c e u >>= \tu ->
     FunT t1 t2 -> if (tu == t1) then ret t2 else matchError t1 tu
     _          -> notfunError tt
 infer' c e (Lam t u) = infer' (t : c) e u >>= \tu -> ret $ FunT t tu
-
+infer' c e (Let term1 term2) = infer' c e term1 >>=
+                                \t -> infer' (t : c) e term2
 
