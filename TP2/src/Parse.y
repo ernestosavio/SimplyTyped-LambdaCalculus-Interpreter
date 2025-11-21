@@ -27,7 +27,9 @@ import Data.Char
     DEF     { TDef }
     LET     { TLet }
     IN      { TIn }
-    
+    '0'     { TZero }
+    SUC     { TSuc }
+    R       { TRec }
 
 %left '=' 
 %right '->'
@@ -42,6 +44,14 @@ Defexp  : DEF VAR '=' Exp              { Def $2 $4 }
 Exp     :: { LamTerm }
         : '\\' VAR ':' Type '.' Exp    { LAbs $2 $4 $6 }
         | LET VAR '=' Exp IN Exp       { LLet $2 $4 $6 }
+        | NRec                         { $1 }
+
+NRec    :: { LamTerm }
+        : R Atom Atom NNat              { LRec $2 $3 $4 } 
+        | NNum                          { $1 }
+
+NNum    :: { LamTerm }
+        : NNat                         { $1 }
         | NAbs                         { $1 }
         
 NAbs    :: { LamTerm }
@@ -51,6 +61,10 @@ NAbs    :: { LamTerm }
 Atom    :: { LamTerm }
         : VAR                          { LVar $1 }  
         | '(' Exp ')'                  { $2 }
+
+NNat    :: { LamTerm }
+        : '0'                          { LZero }
+        | SUC NNat                     { LSuc $2 }
 
 Type    : TYPEE                        { EmptyT }
         | Type '->' Type               { FunT $1 $3 }
@@ -100,6 +114,9 @@ data Token = TVar String
                | TEquals
                | TLet
                | TIn
+               | TZero
+               | TSuc
+               | TRec
                | TEOF
                deriving Show
 
@@ -128,6 +145,9 @@ lexer cont s = case s of
                               ("def", rest) -> cont TDef rest
                               ("let", rest) -> cont TLet rest
                               ("in", rest)  -> cont TIn rest
+                              ("0", rest)   -> cont TZero rest
+                              ("suc", rest) -> cont TSuc rest
+                              ("R", rest)   -> cont TRec rest
                               (var,rest)    -> cont (TVar var) rest
                           consumirBK anidado cl cont s = case s of
                               ('-':('-':cs)) -> consumirBK anidado cl cont $ dropWhile ((/=) '\n') cs

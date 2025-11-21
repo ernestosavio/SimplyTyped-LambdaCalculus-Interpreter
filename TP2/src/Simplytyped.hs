@@ -81,13 +81,16 @@ quote (VLam t f) = Lam t f
 eval :: NameEnv Value Type -> Term -> Value
 eval env t@(Bound j) = error "ERROR (eval) - Invalid term"
 
-eval env t@(Free str) = case (inEnv env str) of
-      (Just (value, _)) -> value
-      (Nothing) -> error "ERROR (eval) - Free variable without value in env"
+eval env t@(Free str) = 
+  case (inEnv env str) of
+    (Just (value, _)) -> value
+    (Nothing) -> error "ERROR (eval) - Free variable without value in env"
 
-eval env (u :@: v) = let u' = quote (eval env u)
-                         v' = quote (eval env v)
-                     in eval env (sub 0 v' u')
+eval env (u :@: v) = let u' = eval env u
+                         v' = eval env v
+                     in case u' of
+                        (VLam _ term) -> eval env (sub 0 (quote v') term)
+                        _ -> error "ERROR (eval) - Invalid value"
 
 eval env (Lam t u) = (VLam t u)
 eval env (Let term1 term2) = let term1' = quote (eval env term1)
