@@ -38,7 +38,17 @@ conversion (LLet str term1 term2) = let
                                       term2' = conversion term2
                                     in
                                       (Let term1' (bound2Brujin 
-                                      (Global str) 0 term2')) 
+                                      (Global str) 0 term2'))
+
+conversion (LZero) = Zero
+
+conversion (LSuc term) = Suc (conversion term)
+
+conversion (LRec term1 term2 term3) = let term1' = conversion term1
+                                          term2' = conversion term2
+                                          term3' = conversion term3
+                                      in (Rec term1' term2' term3')
+                                      
 
 
 
@@ -59,19 +69,36 @@ bound2Brujin idx i (Lam t term) = Lam t (bound2Brujin idx (i+1) term)
 bound2Brujin idx i (Let term1 term2) = Let term1 
                                            (bound2Brujin idx (i+1) term2)
 
+bound2Brujin idx i (Zero) = Zero
+
+bound2Brujin idx i (Suc term) = Suc (bound2Brujin idx i term)
+
+bound2Brujin idx i (Rec term1 term2 term3) = 
+  let term1' = bound2Brujin idx i term1 
+      term2' = bound2Brujin idx i term2 
+      term3' = bound2Brujin idx i term3 
+  in (Rec term1' term2' term3')
+                              
+
 ----------------------------
 --- evaluador de términos
 ----------------------------
 
 -- substituye una variable por un término en otro término
 sub :: Int -> Term -> Term -> Term
-sub i t (Bound j) | i == j    = t
-sub _ _ (Bound j) | otherwise = Bound j
-sub _ _ (Free n   )           = Free n
-sub i t (u   :@: v)           = sub i t u :@: sub i t v
-sub i t (Lam t'  u)           = Lam t' (sub (i + 1) t u)
-sub i t (Let term1  term2)    = Let (sub (i + 1) t term1)
-                                    (sub (i + 1) t term2)
+sub i t (Bound j) | i == j      = t
+sub _ _ (Bound j) | otherwise   = Bound j
+sub _ _ (Free n   )             = Free n
+sub i t (u   :@: v)             = sub i t u :@: sub i t v
+sub i t (Lam t'  u)             = Lam t' (sub (i + 1) t u)
+sub i t (Let term1  term2)      = Let (sub (i + 1) t term1)
+                                      (sub (i + 1) t term2)
+sub i t (Zero)                  = Zero
+sub i t (Suc term)              = Suc (sub i t term)
+sub i t (Rec term1 term2 term3) = let term1' = (sub i t term1)
+                                      term2' = (sub i t term2)
+                                      term3' = (sub i t term3)
+                                  in (Rec term1' term2' term3')
 
 -- convierte un valor en el término equivalente
 quote :: Value -> Term
@@ -89,12 +116,34 @@ eval env t@(Free str) =
 eval env (u :@: v) = let u' = eval env u
                          v' = eval env v
                      in case u' of
-                        (VLam _ term) -> eval env (sub 0 (quote v') term)
-                        _ -> error "ERROR (eval) - Invalid value"
+                          (VLam _ term) -> eval env (sub 0 (quote v') term)
+                          _ -> error "ERROR (eval) - Invalid value in App"
 
 eval env (Lam t u) = (VLam t u)
+
 eval env (Let term1 term2) = let term1' = quote (eval env term1)
                              in eval env (sub 0 term1' term2)
+
+eval env (Zero) = (VNum NZero)
+
+eval env (Suc term) = let term' = eval env term
+                      in case term' of
+                           (VNum n) -> (VNum (NSuc n))
+                           _ -> error "ERROR (eval) - Invalid value in Suc"
+
+eval env (Rec term1 term2 term3) =
+  let term3' = eval env term3
+  in case term3' of
+       (VNum NZero) -> eval env term1
+       (VNum n) -> case term3 of 
+                     (Suc Zero) -> eval env (term2 :@:
+                                             (Rec term1 term2 Zero) :@:
+                                             Zero)
+                     (Suc (Suc n)) -> eval env (term2 :@: 
+                                                (Rec term1 term2 (Suc n)) :@:
+                                                (Suc n))
+       _ -> error "ERROR (eval) - Invalid Nat in Rec"
+
 
 inEnv :: NameEnv Value Type -> Name -> Maybe (Value, Type)
 inEnv [] name = Nothing
@@ -150,5 +199,17 @@ infer' c e (t :@: u) = infer' c e t >>= \tt -> infer' c e u >>= \tu ->
     _          -> notfunError tt
 infer' c e (Lam t u) = infer' (t : c) e u >>= \tu -> ret $ FunT t tu
 infer' c e (Let term1 term2) = infer' c e term1 >>=
-                                \t -> infer' (t : c) e term2
-
+                                 \t -> infer' (t : c) e term2
+infer' c e (Zero) = ret NatT
+infer' c e (Suc term) = infer' c e term >>= 
+                          \t -> if (t == (NatT)) 
+                                  then ret NatT
+                                  else matchError (NatT) t 
+infer' c e (Rec term1 term2 term3) = infer' c e term1 >>= 
+                                    \t1 -> infer' c e term2 >>= 
+                                    \t2 -> infer' c e term3 >>= 
+                                    \t3 -> if (t1 == t2) 
+                                             then if (t3 == (NatT))
+                                                    then ret t1
+                                                    else matchError (NatT) t3
+                                             else matchError t1 t2
