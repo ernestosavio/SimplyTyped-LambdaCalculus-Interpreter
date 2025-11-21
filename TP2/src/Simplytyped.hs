@@ -102,7 +102,9 @@ sub i t (Rec term1 term2 term3) = let term1' = (sub i t term1)
 
 -- convierte un valor en el término equivalente
 quote :: Value -> Term
-quote (VLam t f) = Lam t f
+quote (VLam t f)      = Lam t f
+quote (VNum NZero)    = Zero
+quote (VNum (NSuc n)) = Suc (quote (VNum n))
 
 -- evalúa un término en un entorno dado
 eval :: NameEnv Value Type -> Term -> Value

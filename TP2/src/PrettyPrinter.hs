@@ -38,10 +38,21 @@ pp ii vs (Lam t c) =
     <> text ". "
     <> pp (ii + 1) vs c
 pp ii vs (Let term1 term2) =
-  text "let"
+  text "let "
     <> pp (ii + 1) vs term1
-    <> text "in"
+    <> text "in "
     <> pp (ii + 1) vs term2
+pp ii vs (Zero) = text "0"
+pp ii vs (Suc term) = 
+  text "suc "
+    <> pp ii vs term
+pp ii vs (Rec term1 term2 term3) = 
+  text "R "
+    <> pp ii vs term1
+    <> text " "
+    <> pp ii vs term2
+    <> text " "
+    <> pp ii vs term3
 
 isLam :: Term -> Bool
 isLam (Lam _ _) = True
