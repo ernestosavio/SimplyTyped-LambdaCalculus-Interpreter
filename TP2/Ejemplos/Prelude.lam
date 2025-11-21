@@ -1,3 +1,199 @@
 def I = \x:E. x
 def K = \x:E.\y:E.x
 def S = \x:E->E->E.\y:E->E.\z:E.(x z) (y z)
+
+{-
+
+-- Combinadores Logicos (Tipos Booleanos sobre E)
+
+-- Tipo Bool abreviado: Nat -> Nat -> Nat
+
+-- True: Devuelve el primer argumento
+def bTrue = \x:Nat. \y:Nat. x
+
+-- False: Devuelve el segundo argumento
+def bFalse = \x:Nat. \y:Nat. y
+
+
+-- Not: Invierte el valor booleano
+-- Tipo: (Nat -> Nat -> Nat) -> Nat -> Nat -> Nat
+def bNot = \b:Nat->Nat->Nat. \x:Nat. \y:Nat. b y x
+
+
+-- And: Si p es false devuelve p (false), sino evalúa q
+def bAnd = \p:Nat->Nat->Nat. \q:Nat->Nat->Nat. \x:Nat. \y:Nat. p (q x y) y
+
+{-
+
+LamTerm AST:
+LAbs "p" (FunT EmptyT (FunT EmptyT EmptyT))
+         (LAbs "q" (FunT EmptyT (FunT EmptyT EmptyT)) 
+                   (LApp (LApp (LVar "p")
+                               (LApp (LApp (LVar "q")
+                                           (LAbs "x" EmptyT
+                                                     (LAbs "y" EmptyT
+                                                               (LVar "x"))))
+                                     (LAbs "x" EmptyT
+                                               (LAbs "y" EmptyT
+                                                         (LVar "y")))))
+                         (LAbs "x" EmptyT
+                                   (LAbs "y" EmptyT
+                                             (LVar "y")))))
+
+
+Term AST:
+Lam (FunT EmptyT (FunT EmptyT EmptyT))
+    (Lam (FunT EmptyT (FunT EmptyT EmptyT))
+         ((Bound 1 :@:                                 -- p
+           ((Bound 0 :@:                               -- q
+             Lam EmptyT (Lam EmptyT (Bound 1))) :@:    -- (q True)
+             Lam EmptyT (Lam EmptyT (Bound 0))))       -- (q True False)
+           :@:
+           Lam EmptyT (Lam EmptyT (Bound 0))             -- False
+         )
+    )
+
+-}
+
+
+-- Or: Si p es true devuelve p (true), sino evalúa q
+def bOr = \p:Nat->Nat->Nat. \q:Nat->Nat->Nat. \x:Nat. \y:Nat. p x (q x y) 
+
+-- If-Then-Else (es básicamente la aplicación del booleano)
+-- if cond then t else f
+def bIf = \cond:Nat->Nat->Nat. \t:Nat. \f:Nat. cond t f
+
+
+
+
+
+
+-- Combinadores de Funciones
+
+-- Apply: Aplica una función a un argumento ($ en Haskell)
+def apply = \f:E->E. \x:E. f x
+
+-- Flip: Invierte el orden de los dos primeros argumentos (C)
+def flip = \f:E->E->E. \y:E. \x:E. f x y
+
+-- Compose: Composición de funciones (B o (.))
+def compose = \f:E->E. \g:E->E. \x:E. f (g x)
+
+-- Twice: Aplica la función f dos veces
+def twice = \f:E->E. \x:E. f (f x)
+
+-- Dup: Duplica el argumento y se lo pasa a f (W)
+-- Útil para cosas como elevar al cuadrado: mul x x
+def dup = \f:E->E->E. \x:E. f x x
+
+-- Const: Devuelve siempre el primer valor ignorando el segundo
+def const = \x:E. \y:E. x
+
+-- Thrush: Toma un valor y luego una función, y aplica la función al valor (T)
+-- Es como un 'pipe' inverso: x |> f
+def thrush = \x:E. \f:E->E. f x
+
+
+
+
+
+-- Numeros Naturales y Aritmetica
+
+-- Constantes numéricas básicas
+def one = suc 0
+def two = suc (suc 0)
+def three = suc (suc (suc 0))
+def four = suc (suc (suc (suc 0)))
+def five = suc four
+
+-- Identidad para Naturales
+def idNat = \x:Nat. x
+
+-- Predecesor (pred):
+-- pred 0 = 0
+-- pred (suc n) = n
+-- El paso recibe el n anterior, que es justamente lo que queremos devolver.
+def pred = \n:Nat. R 0 (\r:Nat. \p:Nat. p) n
+
+-- Suma (add): x + y
+-- Recurrimos sobre y.
+-- Base (y=0): x
+-- Paso: suc (resultado_rec)
+def add = \x:Nat. \y:Nat. R x (\r:Nat. \p:Nat. suc r) y
+
+-- Multiplicacion (mult): x * y
+-- Recurrimos sobre y.
+-- Base (y=0): 0
+-- Paso: x + resultado_rec (usamos la def de add anterior o doble recursion)
+-- (R r (\pp:Nat. \rr:Nat. suc rr) x) es (r + x)
+--def mult = \x:Nat. \y:Nat. R 0 (\r:Nat. \p:Nat. R r (\rr:Nat. \pp:Nat. suc rr) x) y
+def mult = \x:Nat. \y:Nat. R 0 (\r:Nat. \p:Nat. add x r) y
+
+
+-- Potencia (pow): x ^ y
+-- Recurrimos sobre el exponente y.
+-- Base (y=0): 1 (suc 0)
+-- Paso: x * resultado_rec
+--def pow = \x:Nat. \y:Nat. R (suc 0) (\p:Nat. \r:Nat. mult x r) y
+
+
+
+{-
+-- Tests complejos
+
+-- Test: 2 + 3
+def testSuma = add two three
+
+-- Test: 2 * 3
+def testMult = mult two three
+
+-- Test: (suc 0) es cero? -> Debe dar bFalse
+def testIsZero = isZero one
+
+-- Test: 0 es cero? -> Debe dar bTrue
+def testIsZeroTwo = isZero 0
+
+-- Test Factorial pequeño (implementado ad-hoc para 3)
+-- fac 3 = mult 3 (mult 2 (mult 1 1))
+def facThree = mult three (mult two one)
+
+-}
+
+-- Definir el 1 localmente y usarlo para crear el 2
+-- Resultado esperado: 2 (suc (suc 0))
+def letTestOne = 
+    let one = suc 0 
+    in suc one
+
+-- Anidamiento de lets para sumar 1 + 1 "a mano"
+-- Resultado esperado: 2
+def letTestTwo = 
+    let x = suc 0 in
+    let y = suc 0 in
+    suc (suc 0) -- (Nota: aquí solo retorno 2, pero la idea es probar que el parser acepte el anidado)
+
+-- Definir una función 'inc' localmente y aplicarla
+-- Resultado esperado: 2
+def letInc = 
+    let inc = \x:Nat. suc x 
+    in inc (suc 0)
+
+-- Definir una función constante local
+-- Resultado esperado: 0
+def letConst = 
+    let kZero = \x:Nat. 0 
+    in kZero (suc (suc (suc 0)))
+
+-- Definicion local de suma (usando el recursor R)
+-- Resultado esperado: x + y
+def letAdd = \x:Nat. \y:Nat.
+    let add = \m:Nat. \n:Nat. R m (\r:Nat. \p:Nat. suc r) n
+    in add x y
+
+-}
+-- Definición local de multiplicacion
+-- Resultado esperado: x * y
+def letMult = \x:Nat. \y:Nat.
+    let g = \m:Nat. \n:Nat. R m (\r:Nat. \p:Nat. suc r) n in
+    let f = \m:Nat. \n:Nat. R 0 (\r:Nat. \p:Nat. g m r) n
+    in f x y

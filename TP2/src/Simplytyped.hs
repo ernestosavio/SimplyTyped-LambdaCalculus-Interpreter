@@ -66,7 +66,7 @@ bound2Brujin idx i (term1 :@: term2) = let
 
 bound2Brujin idx i (Lam t term) = Lam t (bound2Brujin idx (i+1) term)
 
-bound2Brujin idx i (Let term1 term2) = Let term1 
+bound2Brujin idx i (Let term1 term2) = Let (bound2Brujin idx i term1) 
                                            (bound2Brujin idx (i+1) term2)
 
 bound2Brujin idx i (Zero) = Zero
@@ -91,7 +91,7 @@ sub _ _ (Bound j) | otherwise   = Bound j
 sub _ _ (Free n   )             = Free n
 sub i t (u   :@: v)             = sub i t u :@: sub i t v
 sub i t (Lam t'  u)             = Lam t' (sub (i + 1) t u)
-sub i t (Let term1  term2)      = Let (sub (i + 1) t term1)
+sub i t (Let term1  term2)      = Let (sub i t term1)
                                       (sub (i + 1) t term2)
 sub i t (Zero)                  = Zero
 sub i t (Suc term)              = Suc (sub i t term)
@@ -145,7 +145,6 @@ eval env (Rec term1 term2 term3) =
                                                 (Rec term1 term2 (Suc n)) :@:
                                                 (Suc n))
        _ -> error "ERROR (eval) - Invalid Nat in Rec"
-
 
 inEnv :: NameEnv Value Type -> Name -> Maybe (Value, Type)
 inEnv [] name = Nothing
@@ -210,7 +209,7 @@ infer' c e (Suc term) = infer' c e term >>=
 infer' c e (Rec term1 term2 term3) = infer' c e term1 >>= 
                                     \t1 -> infer' c e term2 >>= 
                                     \t2 -> infer' c e term3 >>= 
-                                    \t3 -> if (t1 == t2) 
+                                    \t3 -> if (t2 == (FunT t1 (FunT NatT t1))) 
                                              then if (t3 == (NatT))
                                                     then ret t1
                                                     else matchError (NatT) t3
