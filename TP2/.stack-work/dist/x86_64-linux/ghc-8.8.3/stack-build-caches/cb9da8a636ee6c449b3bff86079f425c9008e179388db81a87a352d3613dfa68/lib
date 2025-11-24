@@ -2,8 +2,6 @@
   hash: 40d1b759f485f1cd5a54141a6412691ac2b76930507289a16a6a7b89b045b4d2
 /home/ernesto/Desktop/alp/tp2-repo/TP2/.stack-work/dist/x86_64-linux/ghc-8.8.3/build/autogen/Paths_TP2.hs:
   hash: a09920042cad18d29ba451fa301976719796c3e1263103b40c267fbba58d5a43
-/home/ernesto/Desktop/alp/tp2-repo/TP2/.stack-work/dist/x86_64-linux/ghc-8.8.3/build/autogen/cabal_macros.h:
-  hash: ade3c56fc728833c9f11aa0cbf05fbcb4820c6d7b1ab80b2452495a40ec7427b
 /home/ernesto/Desktop/alp/tp2-repo/TP2/ChangeLog.md:
   hash: b6db31e04d81c0e662bab2cbee2044b15c6a17422f0ed7b23ee85da5086cf956
 /home/ernesto/Desktop/alp/tp2-repo/TP2/README.md:
@@ -13,12 +11,12 @@
 /home/ernesto/Desktop/alp/tp2-repo/TP2/package.yaml:
   hash: 3f5d9d8a2a57469ed5359f4daf48ab7a74a6eb0299ce2def67ad968547b7ac61
 /home/ernesto/Desktop/alp/tp2-repo/TP2/src/Common.hs:
-  hash: c18f467a1f4eb4701a3dc29bdbac50ad025d8d4ec7487cc872b67920340fde4e
+  hash: 8f1430a15eaf71904a72e68f21418014c6cf20f5dddef214fae0d8df610c748c
 /home/ernesto/Desktop/alp/tp2-repo/TP2/src/Parse.y:
-  hash: f3bc688438bd2458b7a21bb4160083119418e2182c5b256f611837aed48ebd3d
+  hash: 8d08e9d178e7e83e225eab07c0cfac9f3c031564656acfd8987891a92b562a05
 /home/ernesto/Desktop/alp/tp2-repo/TP2/src/PrettyPrinter.hs:
   hash: e5188849abb1b983fcb78f82dc6c0e4dc2b03763724116cb430577dd086c3780
 /home/ernesto/Desktop/alp/tp2-repo/TP2/src/Simplytyped.hs:
-  hash: c630b776d8beda4836a7caaba02c8b3c4821f8d50178f80f5dfa623b999a9683
+  hash: 290c0711b2e628a1ef1fcf67b34f0a592bfcc720cebd8181f5757a1ac08bcb4d
 /usr/include/stdc-predef.h:
   hash: 82975831ea2d1f95b60225f37ddd6130225f0c3de2318674cb178fea661ad87b

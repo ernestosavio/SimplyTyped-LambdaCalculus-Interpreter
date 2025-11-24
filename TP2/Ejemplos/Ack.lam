@@ -1,0 +1,3 @@
+-- Ejercicio 5
+def ack = \n:Nat. R (\t:Nat. suc t) (\f:Nat -> Nat. \p:Nat. (\m:Nat. R (f (suc 0)) (\r:Nat. \pp:Nat. f r) m)) n
+

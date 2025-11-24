@@ -48,7 +48,17 @@ conversion (LRec term1 term2 term3) = let term1' = conversion term1
                                           term2' = conversion term2
                                           term3' = conversion term3
                                       in (Rec term1' term2' term3')
-                                      
+ 
+conversion (LNil) = Nil
+
+conversion (LCons term1 term2) = let term1' = conversion term1
+                                     term2' = conversion term2
+                                 in (Cons term1' term2')
+
+conversion (LRecL term1 term2 term3) = let term1' = conversion term1
+                                           term2' = conversion term2
+                                           term3' = conversion term3
+                                       in (RecL term1' term2' term3')
 
 
 
@@ -78,6 +88,19 @@ bound2Brujin idx i (Rec term1 term2 term3) =
       term2' = bound2Brujin idx i term2 
       term3' = bound2Brujin idx i term3 
   in (Rec term1' term2' term3')
+
+bound2Brujin idx i (Nil) = Nil
+
+bound2Brujin idx i (Cons term1 term2) = 
+  let term1' = (bound2Brujin idx i term1)
+      term2' = (bound2Brujin idx i term2)
+  in (Cons term1' term2')
+
+bound2Brujin idx i (RecL term1 term2 term3) = 
+  let term1' = bound2Brujin idx i term1 
+      term2' = bound2Brujin idx i term2 
+      term3' = bound2Brujin idx i term3 
+  in (RecL term1' term2' term3')
                               
 
 ----------------------------
@@ -134,17 +157,32 @@ eval env (Suc term) = let term' = eval env term
                            _ -> error "ERROR (eval) - Invalid value in Suc"
 
 eval env (Rec term1 term2 term3) =
-  let term3' = eval env term3
+  let value3 = eval env term3
+      term3' = quote value3
   in case term3' of
-       (VNum NZero) -> eval env term1
-       (VNum n) -> case term3 of 
-                     (Suc Zero) -> eval env (term2 :@:
-                                             (Rec term1 term2 Zero) :@:
-                                             Zero)
-                     (Suc (Suc n)) -> eval env (term2 :@: 
-                                                (Rec term1 term2 (Suc n)) :@:
-                                                (Suc n))
-       _ -> error "ERROR (eval) - Invalid Nat in Rec"
+       (Zero)  -> eval env term1
+       (Suc n) -> eval env (term2 :@: (Rec term1 term2 n) :@: n)
+       _       -> error "ERROR (eval) - Invalid Nat in Rec"
+
+eval env (Nil) = (VList VNil)
+
+eval env (Cons term1 term2) = 
+  let term1' = eval env term1
+      term2' = eval env term2
+  in case term1' of
+       (VNum n) -> case term2' of
+                     (VList xs) -> (VList (VCons n xs))
+                     _ -> error "ERROR (eval) - Invalid list value in Cons"
+       _        -> error "ERROR (eval) - Invalid nat value in Cons"
+      
+eval env (RecL term1 term2 term3) =
+  let value3 = eval env term3
+      term3' = quote value3
+  in case term3' of
+       (Nil)       -> eval env term1
+       (Cons n xs) -> eval env (term2 :@: n :@: xs :@: (Rec term1 term2 xs))
+       _           -> error "ERROR (eval) - Invalid NList in RecL"
+
 
 inEnv :: NameEnv Value Type -> Name -> Maybe (Value, Type)
 inEnv [] name = Nothing
@@ -214,3 +252,25 @@ infer' c e (Rec term1 term2 term3) = infer' c e term1 >>=
                                                     then ret t1
                                                     else matchError (NatT) t3
                                              else matchError t1 t2
+infer' c e (Nil) = ret ListT
+infer' c e (Cons term1 term2) = 
+  infer' c e term1 >>= 
+  \t1 -> infer' c e term2 >>= 
+  \t2 -> case (t1, t2) of
+           (NatT, ListT) -> ret ListT
+           (NatT, _)     -> matchError ListT t2
+           (_, ListT)    -> matchError NatT t1
+           (_, _)        -> matchError NatT t1 >>= \_ -> matchError ListT t2
+
+
+infer' c e (RecL term1 term2 term3) = 
+  infer' c e term1 >>= 
+  \t1 -> infer' c e term2 >>=
+  \t2 -> infer' c e term3 >>=
+  \t3 -> case (t2, t3) of
+           ((FunT NatT (FunT ListT (FunT t1 t1))), ListT) -> ret t1
+           (_, ListT) -> matchError (FunT NatT (FunT ListT (FunT t1 t1))) t2
+           ((FunT NatT (FunT ListT (FunT t1 t1))), _) -> matchError ListT t3
+           (_, _) -> matchError (FunT NatT (FunT ListT (FunT t1 t1))) t2 >>=
+                     \_ -> matchError ListT t3
+        
