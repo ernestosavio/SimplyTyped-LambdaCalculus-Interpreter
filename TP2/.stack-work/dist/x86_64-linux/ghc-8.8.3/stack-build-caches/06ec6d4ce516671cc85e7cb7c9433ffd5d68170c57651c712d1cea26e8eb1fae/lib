@@ -1,0 +1,24 @@
+/home/tomas/.ghcup/ghc/8.8.3/lib/ghc-8.8.3/include/ghcversion.h:
+  hash: 40d1b759f485f1cd5a54141a6412691ac2b76930507289a16a6a7b89b045b4d2
+? /home/tomas/Documents/facultad/analisis_de_lenguajes_de_programacion/trabajos_practicos/SimplyTyped-LambdaCalculus-Interpreter/TP2/.stack-work/dist/x86_64-linux/ghc-8.8.3/build/autogen/Paths_TP2.hs
+: hash: 73245f28597fd38fed3c9ae20610d0ba0bdbe5877f1ec93502063e5364ff5717
+? /home/tomas/Documents/facultad/analisis_de_lenguajes_de_programacion/trabajos_practicos/SimplyTyped-LambdaCalculus-Interpreter/TP2/.stack-work/dist/x86_64-linux/ghc-8.8.3/build/autogen/cabal_macros.h
+: hash: 29c1000bd380bc5949930d3f0d4af8a942447ab88c6590b84178dc1de7a1b4aa
+? /home/tomas/Documents/facultad/analisis_de_lenguajes_de_programacion/trabajos_practicos/SimplyTyped-LambdaCalculus-Interpreter/TP2/ChangeLog.md
+: hash: b6db31e04d81c0e662bab2cbee2044b15c6a17422f0ed7b23ee85da5086cf956
+? /home/tomas/Documents/facultad/analisis_de_lenguajes_de_programacion/trabajos_practicos/SimplyTyped-LambdaCalculus-Interpreter/TP2/README.md
+: hash: 7a6d5cb38ef1bd8af98a911f831eb4352fabde8c1b3ac75ae436dba070996555
+? /home/tomas/Documents/facultad/analisis_de_lenguajes_de_programacion/trabajos_practicos/SimplyTyped-LambdaCalculus-Interpreter/TP2/TP2.cabal
+: hash: f04d8f29cbc8c63778d9cee6bc007623d0b8151d4c985c3db6104a0015e911a7
+? /home/tomas/Documents/facultad/analisis_de_lenguajes_de_programacion/trabajos_practicos/SimplyTyped-LambdaCalculus-Interpreter/TP2/package.yaml
+: hash: 3f5d9d8a2a57469ed5359f4daf48ab7a74a6eb0299ce2def67ad968547b7ac61
+? /home/tomas/Documents/facultad/analisis_de_lenguajes_de_programacion/trabajos_practicos/SimplyTyped-LambdaCalculus-Interpreter/TP2/src/Common.hs
+: hash: 8f1430a15eaf71904a72e68f21418014c6cf20f5dddef214fae0d8df610c748c
+? /home/tomas/Documents/facultad/analisis_de_lenguajes_de_programacion/trabajos_practicos/SimplyTyped-LambdaCalculus-Interpreter/TP2/src/Parse.y
+: hash: 9d3f8bbb7b9f25e7b2eb5dbec067383f2bf6b68b5731799e7db852b502f8cbbd
+? /home/tomas/Documents/facultad/analisis_de_lenguajes_de_programacion/trabajos_practicos/SimplyTyped-LambdaCalculus-Interpreter/TP2/src/PrettyPrinter.hs
+: hash: e5188849abb1b983fcb78f82dc6c0e4dc2b03763724116cb430577dd086c3780
+? /home/tomas/Documents/facultad/analisis_de_lenguajes_de_programacion/trabajos_practicos/SimplyTyped-LambdaCalculus-Interpreter/TP2/src/Simplytyped.hs
+: hash: 8816c8d1c197b6568fe1a3de3eb154376c124e7acf04f2b29685e2857f512cb5
+/usr/include/stdc-predef.h:
+  hash: 8db4f65e62cade8ae4d9b77960ee6aee093255acc1b637e3fb37d79179733b15

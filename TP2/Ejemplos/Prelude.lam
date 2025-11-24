@@ -197,3 +197,52 @@ def letMult = \x:Nat. \y:Nat.
     let g = \m:Nat. \n:Nat. R m (\r:Nat. \p:Nat. suc r) n in
     let f = \m:Nat. \n:Nat. R 0 (\r:Nat. \p:Nat. g m r) n
     in f x y
+
+-- Casos de prueba para ListT y RecL
+
+-- 1. Lista vacía
+def emptyList = nil
+
+-- 2. Lista con un elemento
+def singleList = \x:Nat. cons x nil
+
+-- 3. Lista con varios elementos
+def listFive = cons (suc 0) (cons (suc (suc 0)) (cons (suc (suc (suc 0))) (cons (suc (suc (suc (suc 0)))) (cons (suc (suc (suc (suc (suc 0))))) nil))))
+
+-- 4. Función longitud de lista
+def length = \xs:List Nat. RL 0 (\n:Nat. \ys:List Nat. \r:Nat. suc r) xs
+
+-- 5. Longitud de lista vacía (debe dar 0)
+def lengthEmpty = length nil
+
+-- 6. Longitud de lista con 3 elementos (debe dar 3)
+def lengthThree = 
+    let lista = cons (suc 0) (cons (suc (suc 0)) (cons (suc (suc (suc 0))) nil))
+    in length lista
+
+-- 7. Suma de elementos de una lista
+def sumList = \xs:List Nat. RL 0 (\n:Nat. \ys:List Nat. \r:Nat. R r (\s:Nat. \k:Nat. suc s) n) xs
+
+-- 8. Suma de lista vacía (debe dar 0)
+def sumEmpty = sumList nil
+
+-- 9. Suma de lista [1,2,3,4] (debe dar 10)
+def sumFour = 
+    let lista = cons (suc 0) (cons (suc (suc 0)) (cons (suc (suc (suc 0))) (cons (suc (suc (suc (suc 0)))) nil)))
+    in sumList lista
+
+-- 10. Producto de elementos de lista (caso base 1)
+def prodList = \xs:List Nat. RL (suc 0) (\n:Nat. \ys:List Nat. \r:Nat. R r (\s:Nat. \k:Nat. suc s) n) xs
+
+-- 11. Producto de lista [2,3,4] (debe dar 24)
+def prodThree = 
+    let lista = cons (suc (suc 0)) (cons (suc (suc (suc 0))) (cons (suc (suc (suc (suc 0)))) nil))
+    in prodList lista
+
+-- 12. Contar elementos (ignorando valores, solo cuenta)
+def countAll = \xs:List Nat. RL 0 (\n:Nat. \ys:List Nat. \r:Nat. suc r) xs
+
+-- 13. Aplicar sucesor a la longitud de una lista
+def sucLength = 
+    let lista = cons (suc 0) (cons (suc (suc 0)) nil)
+    in suc (length lista)

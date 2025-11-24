@@ -15,25 +15,26 @@ import Data.Char
 %lexer {lexer} {TEOF}
 
 %token
-    '='     { TEquals }
-    ':'     { TColon }
-    '\\'    { TAbs }
-    '.'     { TDot }
-    '('     { TOpen }
-    ')'     { TClose }
-    '->'    { TArrow }
-    VAR     { TVar $$ }
-    TYPEE   { TTypeE }
-    DEF     { TDef }
-    LET     { TLet }
-    IN      { TIn }
-    TYPENAT { TTypeNat }
-    '0'     { TZero }
-    SUC     { TSuc }
-    R       { TRec }
-    CONS    { TCons }
-    NIL     { TNil }
-    RL      { TRecL }
+    '='      { TEquals }
+    ':'      { TColon }
+    '\\'     { TAbs }
+    '.'      { TDot }
+    '('      { TOpen }
+    ')'      { TClose }
+    '->'     { TArrow }
+    VAR      { TVar $$ }
+    TYPEE    { TTypeE }
+    DEF      { TDef }
+    LET      { TLet }
+    IN       { TIn }
+    TYPENAT  { TTypeNat }
+    '0'      { TZero }
+    SUC      { TSuc }
+    R        { TRec }
+    CONS     { TCons }
+    NIL      { TNil }
+    RL       { TRecL }
+    TYPELIST { TTypeList }
 
 
 %left '=' 
@@ -81,6 +82,7 @@ Type    : TYPEE                        { EmptyT }
         | TYPENAT                      { NatT }
         | Type '->' Type               { FunT $1 $3 }
         | '(' Type ')'                 { $2 }
+        | TYPELIST TYPENAT             { ListT }
 
 Defs    : Defexp Defs                  { $1 : $2 }
         |                              { [] }
@@ -127,6 +129,7 @@ data Token = TVar String
                | TLet
                | TIn
                | TTypeNat
+               | TTypeList
                | TZero
                | TSuc
                | TRec
@@ -158,6 +161,7 @@ lexer cont s = case s of
                     unknown -> \line -> Failed $ 
                      "Línea "++(show line)++": No se puede reconocer "++(show $ take 10 unknown)++ "..."
                     where lexVar cs = case span isAlpha cs of
+                              ("List", rest) -> cont TTypeList rest
                               ("E", rest)    -> cont TTypeE rest
                               ("def", rest)  -> cont TDef rest
                               ("let", rest)  -> cont TLet rest

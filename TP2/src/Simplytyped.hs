@@ -118,6 +118,14 @@ sub i t (Let term1  term2)      = Let (sub i t term1)
                                       (sub (i + 1) t term2)
 sub i t (Zero)                  = Zero
 sub i t (Suc term)              = Suc (sub i t term)
+sub i t (Nil)                   = Nil
+sub i t (Cons term1 term2)      = let term1' = (sub i t term1)
+                                      term2' = (sub i t term2)
+                                  in (Cons term1' term2')
+sub i t (RecL term1 term2 term3)= let term1' = (sub i t term1)
+                                      term2' = (sub i t term2)
+                                      term3' = (sub i t term3)
+                                  in (RecL term1' term2' term3')
 sub i t (Rec term1 term2 term3) = let term1' = (sub i t term1)
                                       term2' = (sub i t term2)
                                       term3' = (sub i t term3)
@@ -128,6 +136,10 @@ quote :: Value -> Term
 quote (VLam t f)      = Lam t f
 quote (VNum NZero)    = Zero
 quote (VNum (NSuc n)) = Suc (quote (VNum n))
+quote (VList VNil) = Nil
+quote (VList (VCons vn vl)) = let n = quote (VNum vn)
+                                  v = quote (VList vl)
+                              in (Cons n v)
 
 -- evalúa un término en un entorno dado
 eval :: NameEnv Value Type -> Term -> Value
@@ -247,11 +259,15 @@ infer' c e (Suc term) = infer' c e term >>=
 infer' c e (Rec term1 term2 term3) = infer' c e term1 >>= 
                                     \t1 -> infer' c e term2 >>= 
                                     \t2 -> infer' c e term3 >>= 
-                                    \t3 -> if (t2 == (FunT t1 (FunT NatT t1))) 
-                                             then if (t3 == (NatT))
-                                                    then ret t1
-                                                    else matchError (NatT) t3
-                                             else matchError t1 t2
+                                    \t3 -> case (t2,t3) of
+                                              (FunT ta (FunT NatT tb), NatT) -> 
+                                                if ta == tb && ta == t1
+                                                  then ret t1
+                                                  else matchError (FunT t1 (FunT NatT t1)) t2
+                                              (_, NatT) -> matchError (FunT t1 (FunT NatT t1)) t2
+                                              (FunT ta (FunT NatT tb), _) -> matchError NatT t3
+                                              (_,_) -> matchError (FunT t1 (FunT NatT t1)) t2 >>=
+                                                        \_ -> matchError NatT t3                                      
 infer' c e (Nil) = ret ListT
 infer' c e (Cons term1 term2) = 
   infer' c e term1 >>= 
@@ -268,9 +284,12 @@ infer' c e (RecL term1 term2 term3) =
   \t1 -> infer' c e term2 >>=
   \t2 -> infer' c e term3 >>=
   \t3 -> case (t2, t3) of
-           ((FunT NatT (FunT ListT (FunT t1 t1))), ListT) -> ret t1
+           ((FunT NatT (FunT ListT (FunT ta tb))), ListT) -> 
+            if ta == tb && ta == t1 
+              then ret t1 
+              else matchError (FunT NatT (FunT ListT (FunT t1 t1))) t2
            (_, ListT) -> matchError (FunT NatT (FunT ListT (FunT t1 t1))) t2
-           ((FunT NatT (FunT ListT (FunT t1 t1))), _) -> matchError ListT t3
+           ((FunT NatT (FunT ListT (FunT ta tb))), _) -> matchError ListT t3
            (_, _) -> matchError (FunT NatT (FunT ListT (FunT t1 t1))) t2 >>=
                      \_ -> matchError ListT t3
         

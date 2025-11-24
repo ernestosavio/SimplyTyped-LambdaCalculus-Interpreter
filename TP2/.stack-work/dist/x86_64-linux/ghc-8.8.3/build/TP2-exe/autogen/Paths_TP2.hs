@@ -29,12 +29,12 @@ version :: Version
 version = Version [0,1,0,0] []
 bindir, libdir, dynlibdir, datadir, libexecdir, sysconfdir :: FilePath
 
-bindir     = "/home/ernesto/Desktop/alp/tp2-repo/TP2/.stack-work/install/x86_64-linux/cb9da8a636ee6c449b3bff86079f425c9008e179388db81a87a352d3613dfa68/8.8.3/bin"
-libdir     = "/home/ernesto/Desktop/alp/tp2-repo/TP2/.stack-work/install/x86_64-linux/cb9da8a636ee6c449b3bff86079f425c9008e179388db81a87a352d3613dfa68/8.8.3/lib/x86_64-linux-ghc-8.8.3/TP2-0.1.0.0-2c9qde79sPOLVEqyS9Uqj7-TP2-exe"
-dynlibdir  = "/home/ernesto/Desktop/alp/tp2-repo/TP2/.stack-work/install/x86_64-linux/cb9da8a636ee6c449b3bff86079f425c9008e179388db81a87a352d3613dfa68/8.8.3/lib/x86_64-linux-ghc-8.8.3"
-datadir    = "/home/ernesto/Desktop/alp/tp2-repo/TP2/.stack-work/install/x86_64-linux/cb9da8a636ee6c449b3bff86079f425c9008e179388db81a87a352d3613dfa68/8.8.3/share/x86_64-linux-ghc-8.8.3/TP2-0.1.0.0"
-libexecdir = "/home/ernesto/Desktop/alp/tp2-repo/TP2/.stack-work/install/x86_64-linux/cb9da8a636ee6c449b3bff86079f425c9008e179388db81a87a352d3613dfa68/8.8.3/libexec/x86_64-linux-ghc-8.8.3/TP2-0.1.0.0"
-sysconfdir = "/home/ernesto/Desktop/alp/tp2-repo/TP2/.stack-work/install/x86_64-linux/cb9da8a636ee6c449b3bff86079f425c9008e179388db81a87a352d3613dfa68/8.8.3/etc"
+bindir     = "/home/tomas/Documents/facultad/analisis_de_lenguajes_de_programacion/trabajos_practicos/SimplyTyped-LambdaCalculus-Interpreter/TP2/.stack-work/install/x86_64-linux/06ec6d4ce516671cc85e7cb7c9433ffd5d68170c57651c712d1cea26e8eb1fae/8.8.3/bin"
+libdir     = "/home/tomas/Documents/facultad/analisis_de_lenguajes_de_programacion/trabajos_practicos/SimplyTyped-LambdaCalculus-Interpreter/TP2/.stack-work/install/x86_64-linux/06ec6d4ce516671cc85e7cb7c9433ffd5d68170c57651c712d1cea26e8eb1fae/8.8.3/lib/x86_64-linux-ghc-8.8.3/TP2-0.1.0.0-2c9qde79sPOLVEqyS9Uqj7-TP2-exe"
+dynlibdir  = "/home/tomas/Documents/facultad/analisis_de_lenguajes_de_programacion/trabajos_practicos/SimplyTyped-LambdaCalculus-Interpreter/TP2/.stack-work/install/x86_64-linux/06ec6d4ce516671cc85e7cb7c9433ffd5d68170c57651c712d1cea26e8eb1fae/8.8.3/lib/x86_64-linux-ghc-8.8.3"
+datadir    = "/home/tomas/Documents/facultad/analisis_de_lenguajes_de_programacion/trabajos_practicos/SimplyTyped-LambdaCalculus-Interpreter/TP2/.stack-work/install/x86_64-linux/06ec6d4ce516671cc85e7cb7c9433ffd5d68170c57651c712d1cea26e8eb1fae/8.8.3/share/x86_64-linux-ghc-8.8.3/TP2-0.1.0.0"
+libexecdir = "/home/tomas/Documents/facultad/analisis_de_lenguajes_de_programacion/trabajos_practicos/SimplyTyped-LambdaCalculus-Interpreter/TP2/.stack-work/install/x86_64-linux/06ec6d4ce516671cc85e7cb7c9433ffd5d68170c57651c712d1cea26e8eb1fae/8.8.3/libexec/x86_64-linux-ghc-8.8.3/TP2-0.1.0.0"
+sysconfdir = "/home/tomas/Documents/facultad/analisis_de_lenguajes_de_programacion/trabajos_practicos/SimplyTyped-LambdaCalculus-Interpreter/TP2/.stack-work/install/x86_64-linux/06ec6d4ce516671cc85e7cb7c9433ffd5d68170c57651c712d1cea26e8eb1fae/8.8.3/etc"
 
 getBinDir, getLibDir, getDynLibDir, getDataDir, getLibexecDir, getSysconfDir :: IO FilePath
 getBinDir = catchIO (getEnv "TP2_bindir") (\_ -> return bindir)
