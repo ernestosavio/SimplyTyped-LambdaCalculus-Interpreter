@@ -2,8 +2,6 @@ def I = \x:E. x
 def K = \x:E.\y:E.x
 def S = \x:E->E->E.\y:E->E.\z:E.(x z) (y z)
 
-{-
-
 -- Combinadores Logicos (Tipos Booleanos sobre E)
 
 -- Tipo Bool abreviado: Nat -> Nat -> Nat
@@ -134,11 +132,10 @@ def mult = \x:Nat. \y:Nat. R 0 (\r:Nat. \p:Nat. add x r) y
 -- Recurrimos sobre el exponente y.
 -- Base (y=0): 1 (suc 0)
 -- Paso: x * resultado_rec
---def pow = \x:Nat. \y:Nat. R (suc 0) (\p:Nat. \r:Nat. mult x r) y
+def pow = \x:Nat. \y:Nat. R (suc 0) (\r:Nat. \p:Nat. mult x r) y
 
 
 
-{-
 -- Tests complejos
 
 -- Test: 2 + 3
@@ -147,17 +144,9 @@ def testSuma = add two three
 -- Test: 2 * 3
 def testMult = mult two three
 
--- Test: (suc 0) es cero? -> Debe dar bFalse
-def testIsZero = isZero one
-
--- Test: 0 es cero? -> Debe dar bTrue
-def testIsZeroTwo = isZero 0
-
 -- Test Factorial pequeño (implementado ad-hoc para 3)
 -- fac 3 = mult 3 (mult 2 (mult 1 1))
 def facThree = mult three (mult two one)
-
--}
 
 -- Definir el 1 localmente y usarlo para crear el 2
 -- Resultado esperado: 2 (suc (suc 0))
@@ -190,7 +179,6 @@ def letAdd = \x:Nat. \y:Nat.
     let add = \m:Nat. \n:Nat. R m (\r:Nat. \p:Nat. suc r) n
     in add x y
 
--}
 -- Definición local de multiplicacion
 -- Resultado esperado: x * y
 def letMult = \x:Nat. \y:Nat.

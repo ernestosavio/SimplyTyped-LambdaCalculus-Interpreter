@@ -80,9 +80,9 @@ Atom    :: { LamTerm }
 
 Type    : TYPEE                        { EmptyT }
         | TYPENAT                      { NatT }
+        | TYPELIST TYPENAT             { ListT }
         | Type '->' Type               { FunT $1 $3 }
         | '(' Type ')'                 { $2 }
-        | TYPELIST TYPENAT             { ListT }
 
 Defs    : Defexp Defs                  { $1 : $2 }
         |                              { [] }
@@ -129,10 +129,10 @@ data Token = TVar String
                | TLet
                | TIn
                | TTypeNat
-               | TTypeList
                | TZero
                | TSuc
                | TRec
+               | TTypeList
                | TNil
                | TCons
                | TRecL
@@ -161,7 +161,6 @@ lexer cont s = case s of
                     unknown -> \line -> Failed $ 
                      "Línea "++(show line)++": No se puede reconocer "++(show $ take 10 unknown)++ "..."
                     where lexVar cs = case span isAlpha cs of
-                              ("List", rest) -> cont TTypeList rest
                               ("E", rest)    -> cont TTypeE rest
                               ("def", rest)  -> cont TDef rest
                               ("let", rest)  -> cont TLet rest
@@ -169,6 +168,7 @@ lexer cont s = case s of
                               ("Nat", rest)  -> cont TTypeNat rest
                               ("suc", rest)  -> cont TSuc rest
                               ("R", rest)    -> cont TRec rest
+                              ("List", rest) -> cont TTypeList rest
                               ("nil", rest)  -> cont TNil rest
                               ("cons", rest) -> cont TCons rest
                               ("RL", rest)   -> cont TRecL rest

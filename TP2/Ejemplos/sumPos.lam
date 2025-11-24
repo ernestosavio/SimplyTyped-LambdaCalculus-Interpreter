@@ -1,0 +1,20 @@
+-- Ejercicio 7
+def mapL = \f:Nat->Nat. \xs:List Nat. RL nil (\y:Nat. \ys:List Nat. \r:List Nat. cons (f y) r) xs
+def sumPos = \xs: List Nat. RL nil (\y:Nat. \ys:List Nat. \r:List Nat. cons (suc y) (mapL (\n:Nat. suc n) r)) xs
+
+def one = suc 0
+def two = suc one
+def three = suc two
+def four = suc three
+def five = suc four
+def six = suc five
+def seven = suc six
+def eight = suc seven
+def nine = suc eight
+def ten = suc nine
+def eleven = suc ten
+
+def ej = cons four nil
+def ejTwo = cons four (cons two (cons five nil))
+def ejThree = cons four (cons two (cons five (cons one (cons seven (cons ten nil)))))
+

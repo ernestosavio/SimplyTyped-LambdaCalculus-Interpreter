@@ -54,6 +54,21 @@ pp ii vs (Rec term1 term2 term3) =
     <> text " "
     <> pp ii vs term3
 
+pp ii vs (Nil) = text " nil"
+
+pp ii vs (Cons term1 term2) = 
+  text " cons "
+    <> (parensIf (isApp term1 || isLam term1 || isSuc term1) (pp ii vs term1))
+    <> (parensIf (isApp term2 || isLam term2 || isSuc term2) (pp ii vs term2))
+
+pp ii vs (RecL term1 term2 term3) = 
+  text "RL "
+    <> pp ii vs term1
+    <> text " "
+    <> pp ii vs term2
+    <> text " "
+    <> pp ii vs term3
+
 isLam :: Term -> Bool
 isLam (Lam _ _) = True
 isLam _         = False

@@ -23,56 +23,67 @@ import           Common
 -- conversion a términos localmente sin nombres
 conversion :: LamTerm -> Term
 conversion (LVar str) = Free (Global str)
-conversion (LAbs str t term) = let term' = conversion term 
-                                  in (Lam t 
-                                      (bound2Brujin (Global str) 0 term'))
+conversion (LAbs str t term) = 
+  let
+    term' = conversion term 
+  in 
+    (Lam t (bound2Brujin (Global str) 0 term'))
 
-conversion (LApp term1 term2) = let 
-                                  term1' = conversion term1
-                                  term2' = conversion term2
-                                in
-                                  term1' :@: term2'
+conversion (LApp term1 term2) =
+  let 
+    term1' = conversion term1
+    term2' = conversion term2 
+  in
+    term1' :@: term2'
 
-conversion (LLet str term1 term2) = let 
-                                      term1' = conversion term1
-                                      term2' = conversion term2
-                                    in
-                                      (Let term1' (bound2Brujin 
-                                      (Global str) 0 term2'))
+conversion (LLet str term1 term2) = 
+  let 
+    term1' = conversion term1 
+    term2' = conversion term2 
+  in 
+    (Let term1' (bound2Brujin (Global str) 0 term2'))
 
 conversion (LZero) = Zero
 
 conversion (LSuc term) = Suc (conversion term)
 
-conversion (LRec term1 term2 term3) = let term1' = conversion term1
-                                          term2' = conversion term2
-                                          term3' = conversion term3
-                                      in (Rec term1' term2' term3')
+conversion (LRec term1 term2 term3) =
+  let 
+    term1' = conversion term1
+    term2' = conversion term2
+    term3' = conversion term3 
+  in 
+    (Rec term1' term2' term3')
  
 conversion (LNil) = Nil
 
-conversion (LCons term1 term2) = let term1' = conversion term1
-                                     term2' = conversion term2
-                                 in (Cons term1' term2')
+conversion (LCons term1 term2) =
+  let 
+    term1' = conversion term1 
+    term2' = conversion term2 
+  in
+    (Cons term1' term2')
 
-conversion (LRecL term1 term2 term3) = let term1' = conversion term1
-                                           term2' = conversion term2
-                                           term3' = conversion term3
-                                       in (RecL term1' term2' term3')
+conversion (LRecL term1 term2 term3) = 
+  let
+    term1' = conversion term1 
+    term2' = conversion term2 
+    term3' = conversion term3 
+  in
+    (RecL term1' term2' term3')
 
 
 
 bound2Brujin :: Name -> Int -> Term -> Term
 bound2Brujin _ _ t@(Bound j) = t
-bound2Brujin idx i t@(Free idx') = if (idx == idx') 
-                                     then (Bound i)
-                                     else t                                
+bound2Brujin idx i t@(Free idx') = if (idx == idx') then (Bound i) else t                                
 
-bound2Brujin idx i (term1 :@: term2) = let
-                                         term1' = bound2Brujin idx i term1
-                                         term2' = bound2Brujin idx i term2
-                                       in
-                                         term1' :@: term2'
+bound2Brujin idx i (term1 :@: term2) =
+  let 
+    term1' = bound2Brujin idx i term1 
+    term2' = bound2Brujin idx i term2 
+  in 
+    term1' :@: term2'
 
 bound2Brujin idx i (Lam t term) = Lam t (bound2Brujin idx (i+1) term)
 
@@ -84,23 +95,29 @@ bound2Brujin idx i (Zero) = Zero
 bound2Brujin idx i (Suc term) = Suc (bound2Brujin idx i term)
 
 bound2Brujin idx i (Rec term1 term2 term3) = 
-  let term1' = bound2Brujin idx i term1 
-      term2' = bound2Brujin idx i term2 
-      term3' = bound2Brujin idx i term3 
-  in (Rec term1' term2' term3')
+  let 
+    term1' = bound2Brujin idx i term1 
+    term2' = bound2Brujin idx i term2 
+    term3' = bound2Brujin idx i term3 
+  in
+    (Rec term1' term2' term3')
 
 bound2Brujin idx i (Nil) = Nil
 
 bound2Brujin idx i (Cons term1 term2) = 
-  let term1' = (bound2Brujin idx i term1)
-      term2' = (bound2Brujin idx i term2)
-  in (Cons term1' term2')
+  let
+    term1' = (bound2Brujin idx i term1) 
+    term2' = (bound2Brujin idx i term2)
+  in
+    (Cons term1' term2')
 
 bound2Brujin idx i (RecL term1 term2 term3) = 
-  let term1' = bound2Brujin idx i term1 
-      term2' = bound2Brujin idx i term2 
-      term3' = bound2Brujin idx i term3 
-  in (RecL term1' term2' term3')
+  let
+    term1' = bound2Brujin idx i term1 
+    term2' = bound2Brujin idx i term2 
+    term3' = bound2Brujin idx i term3 
+  in
+    (RecL term1' term2' term3')
                               
 
 ----------------------------
@@ -109,37 +126,66 @@ bound2Brujin idx i (RecL term1 term2 term3) =
 
 -- substituye una variable por un término en otro término
 sub :: Int -> Term -> Term -> Term
-sub i t (Bound j) | i == j      = t
-sub _ _ (Bound j) | otherwise   = Bound j
-sub _ _ (Free n   )             = Free n
-sub i t (u   :@: v)             = sub i t u :@: sub i t v
-sub i t (Lam t'  u)             = Lam t' (sub (i + 1) t u)
-sub i t (Let term1  term2)      = Let (sub i t term1)
-                                      (sub (i + 1) t term2)
-sub i t (Zero)                  = Zero
-sub i t (Suc term)              = Suc (sub i t term)
-sub i t (Nil)                   = Nil
-sub i t (Cons term1 term2)      = let term1' = (sub i t term1)
-                                      term2' = (sub i t term2)
-                                  in (Cons term1' term2')
-sub i t (RecL term1 term2 term3)= let term1' = (sub i t term1)
-                                      term2' = (sub i t term2)
-                                      term3' = (sub i t term3)
-                                  in (RecL term1' term2' term3')
-sub i t (Rec term1 term2 term3) = let term1' = (sub i t term1)
-                                      term2' = (sub i t term2)
-                                      term3' = (sub i t term3)
-                                  in (Rec term1' term2' term3')
+
+sub i t (Bound j) | i == j       = t
+
+sub _ _ (Bound j) | otherwise    = Bound j
+
+sub _ _ (Free n   )              = Free n
+
+sub i t (u   :@: v)              = sub i t u :@: sub i t v
+
+sub i t (Lam t'  u)              = Lam t' (sub (i + 1) t u)
+
+sub i t (Let term1  term2)       = Let (sub i t term1)
+                                       (sub (i + 1) t term2)
+
+sub i t (Zero)                   = Zero
+
+sub i t (Suc term)               = Suc (sub i t term)
+
+sub i t (Rec term1 term2 term3)  =
+  let
+    term1' = (sub i t term1) 
+    term2' = (sub i t term2) 
+    term3' = (sub i t term3) 
+  in
+    (Rec term1' term2' term3')
+
+sub i t (Nil)                    = Nil
+
+sub i t (Cons term1 term2)       =
+  let 
+    term1' = (sub i t term1) 
+    term2' = (sub i t term2) 
+  in
+    (Cons term1' term2')
+
+sub i t (RecL term1 term2 term3) =
+  let
+    term1' = (sub i t term1) 
+    term2' = (sub i t term2) 
+    term3' = (sub i t term3) 
+  in
+    (RecL term1' term2' term3')
 
 -- convierte un valor en el término equivalente
 quote :: Value -> Term
-quote (VLam t f)      = Lam t f
-quote (VNum NZero)    = Zero
-quote (VNum (NSuc n)) = Suc (quote (VNum n))
-quote (VList VNil) = Nil
-quote (VList (VCons vn vl)) = let n = quote (VNum vn)
-                                  v = quote (VList vl)
-                              in (Cons n v)
+
+quote (VLam t f)            = Lam t f
+
+quote (VNum NZero)          = Zero
+
+quote (VNum (NSuc n))       = Suc (quote (VNum n))
+
+quote (VList VNil)          = Nil
+
+quote (VList (VCons vn vl)) =
+  let
+    n = quote (VNum vn) 
+    v = quote (VList vl) 
+  in
+    (Cons n v)
 
 -- evalúa un término en un entorno dado
 eval :: NameEnv Value Type -> Term -> Value
@@ -148,60 +194,73 @@ eval env t@(Bound j) = error "ERROR (eval) - Invalid term"
 eval env t@(Free str) = 
   case (inEnv env str) of
     (Just (value, _)) -> value
-    (Nothing) -> error "ERROR (eval) - Free variable without value in env"
+    (Nothing)         -> error "ERROR (eval) - Free variable without value in env"
 
-eval env (u :@: v) = let u' = eval env u
-                         v' = eval env v
-                     in case u' of
-                          (VLam _ term) -> eval env (sub 0 (quote v') term)
-                          _ -> error "ERROR (eval) - Invalid value in App"
+eval env (u :@: v) = 
+  let 
+    u' = eval env u 
+    v' = eval env v 
+  in 
+    case u' of 
+      (VLam _ term) -> eval env (sub 0 (quote v') term) 
+      _             -> error "ERROR (eval) - Invalid value in App"
 
 eval env (Lam t u) = (VLam t u)
 
-eval env (Let term1 term2) = let term1' = quote (eval env term1)
-                             in eval env (sub 0 term1' term2)
+eval env (Let term1 term2) =
+  let 
+    term1' = quote (eval env term1) 
+  in
+    eval env (sub 0 term1' term2)
 
 eval env (Zero) = (VNum NZero)
 
-eval env (Suc term) = let term' = eval env term
-                      in case term' of
-                           (VNum n) -> (VNum (NSuc n))
-                           _ -> error "ERROR (eval) - Invalid value in Suc"
+eval env (Suc term) =
+  let
+    term' = eval env term 
+  in
+    case term' of 
+      (VNum n) -> (VNum (NSuc n)) 
+      _        -> error "ERROR (eval) - Invalid value in Suc"
 
 eval env (Rec term1 term2 term3) =
-  let value3 = eval env term3
-      term3' = quote value3
-  in case term3' of
-       (Zero)  -> eval env term1
-       (Suc n) -> eval env (term2 :@: (Rec term1 term2 n) :@: n)
-       _       -> error "ERROR (eval) - Invalid Nat in Rec"
+  let 
+    value3 = eval env term3 
+    term3' = quote value3
+  in 
+    case term3' of
+      (Zero)  -> eval env term1
+      (Suc n) -> eval env (term2 :@: (Rec term1 term2 n) :@: n)
+      _       -> error "ERROR (eval) - Invalid Nat in Rec"
 
 eval env (Nil) = (VList VNil)
 
-eval env (Cons term1 term2) = 
-  let term1' = eval env term1
-      term2' = eval env term2
-  in case term1' of
-       (VNum n) -> case term2' of
-                     (VList xs) -> (VList (VCons n xs))
-                     _ -> error "ERROR (eval) - Invalid list value in Cons"
-       _        -> error "ERROR (eval) - Invalid nat value in Cons"
+eval env (Cons term1 term2) =
+  let 
+    term1' = eval env term1
+    term2' = eval env term2
+  in 
+    case term1' of
+      (VNum n) -> case term2' of
+                    (VList xs) -> (VList (VCons n xs))
+                    _          -> error "ERROR (eval) - Invalid list value in Cons"
+      _        -> error "ERROR (eval) - Invalid nat value in Cons"
       
 eval env (RecL term1 term2 term3) =
-  let value3 = eval env term3
-      term3' = quote value3
-  in case term3' of
-       (Nil)       -> eval env term1
-       (Cons n xs) -> eval env (term2 :@: n :@: xs :@: (Rec term1 term2 xs))
-       _           -> error "ERROR (eval) - Invalid NList in RecL"
+  let 
+    value3 = eval env term3
+    term3' = quote value3
+  in 
+    case term3' of
+      (Nil)       -> eval env term1
+      (Cons n xs) -> eval env (term2 :@: n :@: xs :@: (RecL term1 term2 xs))
+      _           -> error "ERROR (eval) - Invalid NList in RecL"
 
 
 inEnv :: NameEnv Value Type -> Name -> Maybe (Value, Type)
 inEnv [] name = Nothing
 inEnv ((envName, (envValue, envType)) : xs) name = 
-                              if (envName == name)
-                                then (Just (envValue, envType))
-                                else inEnv xs name
+  if (envName == name) then (Just (envValue, envType)) else inEnv xs name
 
 ----------------------
 --- type checker
@@ -241,34 +300,49 @@ notfoundError n = err $ show n ++ " no está definida."
 -- infiere el tipo de un término a partir de un entorno local de variables y un entorno global
 infer' :: Context -> NameEnv Value Type -> Term -> Either String Type
 infer' c _ (Bound i) = ret (c !! i)
-infer' _ e (Free  n) = case lookup n e of
-  Nothing     -> notfoundError n
-  Just (_, t) -> ret t
-infer' c e (t :@: u) = infer' c e t >>= \tt -> infer' c e u >>= \tu ->
-  case tt of
-    FunT t1 t2 -> if (tu == t1) then ret t2 else matchError t1 tu
-    _          -> notfunError tt
+
+infer' _ e (Free  n) =
+  case lookup n e of
+    Nothing     -> notfoundError n
+    Just (_, t) -> ret t
+
+infer' c e (t :@: u) = 
+  infer' c e t >>= 
+  \tt -> infer' c e u >>=
+  \tu -> case tt of
+           FunT t1 t2 -> if (tu == t1) then ret t2 else matchError t1 tu
+           _          -> notfunError tt
+
 infer' c e (Lam t u) = infer' (t : c) e u >>= \tu -> ret $ FunT t tu
-infer' c e (Let term1 term2) = infer' c e term1 >>=
-                                 \t -> infer' (t : c) e term2
+
+infer' c e (Let term1 term2) =
+  infer' c e term1 >>=
+  \t -> infer' (t : c) e term2
+
 infer' c e (Zero) = ret NatT
-infer' c e (Suc term) = infer' c e term >>= 
-                          \t -> if (t == (NatT)) 
-                                  then ret NatT
-                                  else matchError (NatT) t 
-infer' c e (Rec term1 term2 term3) = infer' c e term1 >>= 
-                                    \t1 -> infer' c e term2 >>= 
-                                    \t2 -> infer' c e term3 >>= 
-                                    \t3 -> case (t2,t3) of
-                                              (FunT ta (FunT NatT tb), NatT) -> 
-                                                if ta == tb && ta == t1
-                                                  then ret t1
-                                                  else matchError (FunT t1 (FunT NatT t1)) t2
-                                              (_, NatT) -> matchError (FunT t1 (FunT NatT t1)) t2
-                                              (FunT ta (FunT NatT tb), _) -> matchError NatT t3
-                                              (_,_) -> matchError (FunT t1 (FunT NatT t1)) t2 >>=
-                                                        \_ -> matchError NatT t3                                      
+
+infer' c e (Suc term) = 
+  infer' c e term >>= 
+  \t -> if (t == (NatT)) then ret NatT else matchError (NatT) t 
+
+infer' c e (Rec term1 term2 term3) = 
+  infer' c e term1 >>= 
+  \t1 -> infer' c e term2 >>= 
+  \t2 -> infer' c e term3 >>= 
+  \t3 -> 
+    case (t2,t3) of
+      (FunT ta (FunT NatT tb), NatT) -> 
+        if ta == tb && ta == t1
+          then ret t1
+          else matchError (FunT t1 (FunT NatT t1)) t2
+      (_, NatT)                      -> matchError (FunT t1 (FunT NatT t1)) t2
+      (FunT ta (FunT NatT tb), _)    -> matchError NatT t3
+      (_,_)                          -> matchError (FunT t1 (FunT NatT t1)) t2
+                                        >>=
+                                        \_ -> matchError NatT t3                                      
+
 infer' c e (Nil) = ret ListT
+
 infer' c e (Cons term1 term2) = 
   infer' c e term1 >>= 
   \t1 -> infer' c e term2 >>= 
@@ -276,20 +350,22 @@ infer' c e (Cons term1 term2) =
            (NatT, ListT) -> ret ListT
            (NatT, _)     -> matchError ListT t2
            (_, ListT)    -> matchError NatT t1
-           (_, _)        -> matchError NatT t1 >>= \_ -> matchError ListT t2
+           (_, _)        -> matchError NatT t1 >>=
+                            \_ -> matchError ListT t2
 
 
 infer' c e (RecL term1 term2 term3) = 
   infer' c e term1 >>= 
   \t1 -> infer' c e term2 >>=
   \t2 -> infer' c e term3 >>=
-  \t3 -> case (t2, t3) of
-           ((FunT NatT (FunT ListT (FunT ta tb))), ListT) -> 
-            if ta == tb && ta == t1 
-              then ret t1 
-              else matchError (FunT NatT (FunT ListT (FunT t1 t1))) t2
-           (_, ListT) -> matchError (FunT NatT (FunT ListT (FunT t1 t1))) t2
-           ((FunT NatT (FunT ListT (FunT ta tb))), _) -> matchError ListT t3
-           (_, _) -> matchError (FunT NatT (FunT ListT (FunT t1 t1))) t2 >>=
-                     \_ -> matchError ListT t3
+  \t3 -> 
+    case (t2, t3) of
+      ((FunT NatT (FunT ListT (FunT ta tb))), ListT) -> 
+        if ta == tb && ta == t1 
+          then ret t1 
+          else matchError (FunT NatT (FunT ListT (FunT t1 t1))) t2
+      (_, ListT) -> matchError (FunT NatT (FunT ListT (FunT t1 t1))) t2
+      ((FunT NatT (FunT ListT (FunT ta tb))), _) -> matchError ListT t3
+      (_, _) -> matchError (FunT NatT (FunT ListT (FunT t1 t1))) t2 >>=
+                \_ -> matchError ListT t3
         
